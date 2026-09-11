@@ -6,6 +6,7 @@ import com.expensetracker.expense_tracker_api.entity.*;
 import com.expensetracker.expense_tracker_api.repository.*;
 import com.expensetracker.expense_tracker_api.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j; // Required Import
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ExpenseService {
@@ -27,6 +29,8 @@ public class ExpenseService {
 
     public ExpenseResponseDTO createExpense(ExpenseRequestDTO dto) {
         String email = securityUtils.getCurrentUserEmail();
+        log.info("Creating new expense for user: {} with title: {}", email, dto.getTitle());
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -45,15 +49,20 @@ public class ExpenseService {
                 .build();
 
         Expense saved = expenseRepository.save(expense);
+        log.info("Expense successfully created with ID: {}", saved.getId());
 
-        // Budget Warning Logic
         String warning = checkBudgetLimit(user.getId(), category.getId(), expenseDate);
+        if (warning != null) {
+            log.warn("Budget limit warning for user {}: {}", user.getId(), warning);
+        }
 
         return mapToResponse(saved, warning);
     }
 
     public List<ExpenseResponseDTO> getFilteredExpenses(Long categoryId, LocalDate startDate, LocalDate endDate) {
         String email = securityUtils.getCurrentUserEmail();
+        log.info("Fetching filtered expenses for user: {}", email);
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
