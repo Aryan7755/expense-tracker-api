@@ -10,8 +10,6 @@ import java.time.LocalDate;
 
 @Data
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class ExpenseResponseDTO {
     private Long id;
     private String title;
