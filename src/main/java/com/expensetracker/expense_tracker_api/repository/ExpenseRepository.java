@@ -15,20 +15,20 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     List<Expense> findByUserId(Long userId);
 
-    @Query("SELECT e FROM Expense e WHERE e.user.id = :userId " +
-            "AND (:categoryId IS NULL OR e.category.id = :categoryId) " +
-            "AND (:startDate IS NULL OR e.date >= :startDate) " +
-            "AND (:endDate IS NULL OR e.date <= :endDate)")
-    List<Expense> filterExpenses(@Param("userId") Long userId,
-                                 @Param("categoryId") Long categoryId,
-                                 @Param("startDate") LocalDate startDate,
-                                 @Param("endDate") LocalDate endDate);
+    @Query("SELECT e FROM Expense e WHERE e.user.id = ?1 " +
+            "AND (?2 IS NULL OR e.category.id = ?2) " +
+            "AND (?3 IS NULL OR e.date >= ?3) " +
+            "AND (?4 IS NULL OR e.date <= ?4)")
+    List<Expense> filterExpenses( Long userId,
+                                  Long categoryId,
+                                  LocalDate startDate,
+                                  LocalDate endDate);
 
-    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.user.id = :userId " +
-            "AND e.category.id = :categoryId " +
-            "AND e.date BETWEEN :startDate AND :endDate")
-    BigDecimal getTotalSpentInPeriod(@Param("userId") Long userId,
-                                     @Param("categoryId") Long categoryId,
-                                     @Param("startDate") LocalDate startDate,
-                                     @Param("endDate") LocalDate endDate);
+    @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.user.id = ?1 " +
+            "AND e.category.id = ?2 " +
+            "AND e.date BETWEEN ?3 AND ?4")
+    BigDecimal getTotalSpentInPeriod( Long userId,
+                                      Long categoryId,
+                                      LocalDate startDate,
+                                      LocalDate endDate);
 }
